@@ -1,0 +1,275 @@
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Planificación - DPPI</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="styles.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.1.0/docx.min.js"></script>
+        <style>
+            body {
+                font-family: 'Poppins', sans-serif;
+                background-color: #f4f4f9;
+                color: #333;
+                overflow-x: hidden; /* Evitar desplazamiento horizontal */
+            }
+            .navbar {
+                background-color: #ffffff;
+                border-bottom: 2px solid #ffa500;
+            }
+            .navbar-brand {
+                font-weight: bold;
+                color: #333;
+            }
+            .navbar-brand:hover {
+                color: #ffa500;
+            }
+            .logo-space {
+                height: 50px;
+                width: 50px;
+            }
+            .section-title {
+                color: #ffa500;
+                margin-top: 20px;
+                text-align: center;
+            }
+            .content {
+                background: #ffffff;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            .back-to-home {
+                display: flex;
+                align-items: center;
+                margin-bottom: 20px;
+                font-size: 1.2em;
+                font-weight: bold;
+                color: #ffa500;
+                text-decoration: none;
+                transition: color 0.3s ease;
+            }
+            .back-to-home:hover {
+                color: #e69500;
+            }
+            .back-to-home-icon {
+                margin-right: 8px;
+                font-size: 1.5em;
+            }
+            .form-group {
+                margin-bottom: 1.5rem;
+            }
+
+            .container {
+        max-width: 100%;
+        padding: 0 15px;
+    }
+
+    #formPlanEstrategico {
+        overflow-y: auto; /* Permitir el desplazamiento vertical */
+        max-height: 600px; /* Limitar la altura máxima para que se pueda desplazar */
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-control {
+        max-width: 100%;
+    }
+        </style>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid">
+                <a class="navbar-brand d-flex align-items-center" href="#">
+                    <img src="logo.png" alt="Logo" class="logo-space me-2">
+                    DPPI - Planificación
+                </a>
+            </div>
+        </nav>
+
+        <div class="container mt-5">
+            <a href="software_gestion.html" class="back-to-home">
+                <span class="back-to-home-icon">&lt;</span> Regresar a Software de Gestión
+            </a>
+            <h1 class="section-title">Planificación</h1>
+            <div class="content mt-4">
+                <p>Bienvenido al apartado de Planificación. Aquí podrá gestionar los planes estratégicos, asignar objetivos y metas para garantizar un mejor desempeño institucional.</p>
+
+               <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generar Documento PDF</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        // Función para agregar un objetivo
+        function agregarObjetivo() {
+            const container = document.getElementById('objetivosContainer');
+            const objetivoHTML = `
+                <div class="objetivo mb-3">
+                    <label>Objetivo</label>
+                    <input type="text" class="form-control" id="objetivo${container.children.length + 1}" placeholder="Objetivo" required>
+                    <label>Metas</label>
+                    <input type="text" class="form-control" id="metas${container.children.length + 1}" placeholder="Metas">
+                </div>`;
+            container.insertAdjacentHTML('beforeend', objetivoHTML);
+        }
+
+        // Función para agregar un recurso
+        function agregarRecurso() {
+            const container = document.getElementById('recursosContainer');
+            const recursoHTML = `
+                <div class="recurso mb-3">
+                    <label>Recurso</label>
+                    <input type="text" class="form-control" placeholder="Nombre del Recurso">
+                    <label>Tipo</label>
+                    <input type="text" class="form-control" placeholder="Tipo de Recurso (humano, financiero, etc.)">
+                </div>`;
+            container.insertAdjacentHTML('beforeend', recursoHTML);
+        }
+
+        // Función para agregar un indicador de seguimiento
+        function agregarSeguimiento() {
+            const container = document.getElementById('seguimientoContainer');
+            const seguimientoHTML = `
+                <div class="seguimiento mb-3">
+                    <label>Indicador</label>
+                    <input type="text" class="form-control" placeholder="Nombre del Indicador">
+                    <label>Meta</label>
+                    <input type="text" class="form-control" placeholder="Meta esperada">
+                    <label>Método de Medición</label>
+                    <input type="text" class="form-control" placeholder="Método de medición">
+                </div>`;
+            container.insertAdjacentHTML('beforeend', seguimientoHTML);
+        }
+
+        // Función para generar el documento PDF
+        function generarDocumentoPDF() {
+            const nombrePlan = document.getElementById('nombrePlan').value;
+            const fechaInicio = document.getElementById('fechaInicio').value;
+            const fechaFin = document.getElementById('fechaFin').value;
+            const descripcion = document.getElementById('descripcion').value;
+
+            const objetivos = document.querySelectorAll('.objetivo');
+            const recursos = document.querySelectorAll('.recurso');
+            const seguimientos = document.querySelectorAll('.seguimiento');
+
+            let objetivosTexto = '', recursosTexto = '', seguimientoTexto = '';
+
+            objetivos.forEach((obj, index) => {
+                const objTexto = obj.querySelector('input[id^="objetivo"]').value;
+                const metasTexto = obj.querySelector('input[id^="metas"]').value;
+                objetivosTexto += `Objetivo ${index + 1}: ${objTexto}\nMetas: ${metasTexto}\n\n`;
+            });
+
+            recursos.forEach((rec, index) => {
+                const nombre = rec.querySelector('input[placeholder="Nombre del Recurso"]').value;
+                const tipo = rec.querySelector('input[placeholder="Tipo de Recurso (humano, financiero, etc.)"]').value;
+                recursosTexto += `Recurso ${index + 1}: ${nombre} (${tipo})\n\n`;
+            });
+
+            seguimientos.forEach((seg, index) => {
+                const indicador = seg.querySelector('input[placeholder="Nombre del Indicador"]').value;
+                const meta = seg.querySelector('input[placeholder="Meta esperada"]').value;
+                const metodo = seg.querySelector('input[placeholder="Método de medición"]').value;
+                seguimientoTexto += `Indicador ${index + 1}: ${indicador}\nMeta: ${meta}\nMétodo: ${metodo}\n\n`;
+            });
+
+            // Crear un nuevo documento PDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Título del documento
+            doc.setFontSize(22);
+            doc.text('Plan Estratégico', 20, 20);
+
+            // Información general
+            doc.setFontSize(16);
+            doc.text('Información General:', 20, 40);
+            doc.setFontSize(12);
+            doc.text(`Nombre del Plan: ${nombrePlan}`, 20, 50);
+            doc.text(`Fecha de Inicio: ${fechaInicio}`, 20, 60);
+            doc.text(`Fecha de Finalización: ${fechaFin}`, 20, 70);
+            doc.text(`Descripción: ${descripcion}`, 20, 80);
+
+            // Objetivos
+            doc.setFontSize(16);
+            doc.text('Objetivos:', 20, 100);
+            doc.setFontSize(12);
+            doc.text(objetivosTexto, 20, 110);
+
+            // Recursos
+            doc.setFontSize(16);
+            doc.text('Recursos:', 20, 150);
+            doc.setFontSize(12);
+            doc.text(recursosTexto, 20, 160);
+
+            // Seguimiento de resultados
+            doc.setFontSize(16);
+            doc.text('Seguimiento de Resultados:', 20, 200);
+            doc.setFontSize(12);
+            doc.text(seguimientoTexto, 20, 210);
+
+            // Descargar el PDF
+            doc.save(`${nombrePlan}.pdf`);
+        }
+    </script>
+</head>
+<body>
+
+    <div class="container mt-5">
+        <h4 class="mt-4">Crear Plan Estratégico</h4>
+        <form id="formPlanEstrategico" enctype="multipart/form-data">
+            <!-- Sección: Información General del Plan -->
+            <div class="form-group">
+                <label for="nombrePlan">Nombre del Plan</label>
+                <input type="text" class="form-control" id="nombrePlan" placeholder="Nombre del Plan" required>
+            </div>
+            <div class="form-group">
+                <label for="fechaInicio">Fecha de Inicio</label>
+                <input type="date" class="form-control" id="fechaInicio" required>
+            </div>
+            <div class="form-group">
+                <label for="fechaFin">Fecha de Finalización</label>
+                <input type="date" class="form-control" id="fechaFin" required>
+            </div>
+            <div class="form-group">
+                <label for="descripcion">Descripción del Plan</label>
+                <textarea class="form-control" id="descripcion" rows="4" placeholder="Descripción general del plan..." required></textarea>
+            </div>
+
+            <!-- Sección: Objetivos del Plan -->
+            <h5 class="mt-4">Objetivos del Plan</h5>
+            <div id="objetivosContainer">
+                <!-- Los objetivos aparecerán aquí -->
+            </div>
+            <button type="button" class="btn btn-outline-warning" onclick="agregarObjetivo()">Agregar Objetivo</button>
+
+            <!-- Sección: Asignar Recursos -->
+            <h5 class="mt-4">Asignar Recursos</h5>
+            <div id="recursosContainer">
+                <button type="button" class="btn btn-outline-success mb-3" onclick="agregarRecurso()">Agregar Recurso</button>
+            </div>
+
+            <!-- Sección: Seguimiento de Resultados -->
+            <h5 class="mt-4">Seguimiento de Resultados</h5>
+            <div id="seguimientoContainer">
+                <button type="button" class="btn btn-outline-info mb-3" onclick="agregarSeguimiento()">Agregar Indicador</button>
+            </div>
+
+           
+
+        <button class="btn btn-danger mt-4" onclick="generarDocumentoPDF()">Generar Documento PDF</button>
+    </div>
+
+    <!-- Cargar Bootstrap y otros scripts necesarios -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

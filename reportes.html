@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes - DPPI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script> <!-- Biblioteca para manejar Excel -->
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .navbar {
+            background-color: #ffffff;
+            border-bottom: 2px solid #ffa500;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            color: #333;
+        }
+        .navbar-brand:hover {
+            color: #ffa500;
+        }
+        .section-title {
+            color: #ffa500;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .table-container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-orange {
+            background-color: #ffa500;
+            color: white;
+            font-weight: bold;
+            border-radius: 20px;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .btn-orange:hover {
+            background-color: #e69500;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .back-to-home {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #ffa500;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .back-to-home:hover {
+            color: #e69500;
+        }
+        .back-to-home-icon {
+            margin-right: 8px;
+            font-size: 1.5em;
+        }
+        
+        .logo-space {
+            height: 50px;
+            width: 50px;
+        }
+
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="logo.png" alt="Logo" class="logo-space me-2">
+                DPPI - Reportes
+            </a>
+        </div>
+    </nav>
+
+<div class="container mt-5">
+    <a href="software_gestion.html" class="back-to-home">
+        <span class="back-to-home-icon">&lt;</span> Regresar a Software de Gestión
+    </a>
+    <h1 class="section-title">Detalle de Presupuesto</h1>
+    <p class="text-center">Visualice y gestione los ingresos y egresos financieros.</p>
+
+    <!-- Adjuntar Archivos -->
+    <div class="mt-4">
+        <h3 class="text-center">Adjuntar Archivos</h3>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="fileInput" class="form-label">Seleccione un archivo Excel:</label>
+                <input type="file" class="form-control" id="fileInput" accept=".xls,.xlsx" onchange="processExcel()" />
+            </div>
+        </form>
+        <div id="uploadStatus" class="mt-3 text-center"></div>
+    </div>
+
+    <!-- Filtro de Movimientos -->
+    <div class="mb-4">
+        <label for="filterType" class="form-label">Filtrar por Tipo:</label>
+        <select id="filterType" class="form-select" onchange="filterMovements()">
+            <option value="Todos">Todos</option>
+            <option value="Ingreso">Ingreso</option>
+            <option value="Egreso">Egreso</option>
+        </select>
+    </div>
+
+ <!-- Filtros de fecha -->
+        <div class="d-flex justify-content-center mb-4">
+            <div class="me-4">
+                <label for="dateFilter" class="form-label me-2">Filtrar por Fecha de Movimiento:</label>
+                <input type="date" id="dateFilter" class="form-control" onchange="filterByDate('movement')">
+            </div>
+            <div>
+                <label for="cutoffDateFilter" class="form-label me-2">Filtrar por Fecha de Corte:</label>
+                <input type="date" id="cutoffDateFilter" class="form-control" onchange="filterByDate('cutoff')">
+            </div>
+        </div>
+
+    <div class="table-container mt-4">
+        <h3 class="text-center">Movimientos Financieros</h3>
+        <table class="table table-bordered table-hover" id="movementsTable">
+            <thead class="table-light">
+                <tr>
+                    <th>Fecha</th>
+                    <th>Descripción</th>
+                    <th>Tipo</th>
+                    <th>Monto</th>
+                    <th>Fecha de Corte</th> <!-- Nueva columna agregada -->
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Filas dinámicas se añadirán aquí -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Botones para descargar -->
+    <div class="text-center mt-4">
+        <button class="btn btn-success me-2" onclick="downloadExcel()">Descargar Excel</button>
+        <button class="btn btn-danger" onclick="downloadPDF()">Descargar PDF</button>
+    </div>
+</div>
+
+<script>
+  function processExcel() { 
+    const fileInput = document.getElementById('fileInput');
+    const uploadStatus = document.getElementById('uploadStatus');
+    const movementsTable = document.getElementById('movementsTable').querySelector('tbody');
+
+    if (!fileInput.files.length) {
+        uploadStatus.textContent = 'Por favor seleccione un archivo.';
+        uploadStatus.style.color = 'red';
+        return;
+    }
+
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function (event) {
+        const data = new Uint8Array(event.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 }); // 'header: 1' para obtener los datos sin procesar como objetos
+
+        // Limpiar tabla antes de agregar nuevos datos
+        movementsTable.innerHTML = '';
+
+        // Agregar filas a la tabla, comenzando desde la fila 4
+        rows.slice(3).forEach(row => { // Usamos slice(3) para saltar las primeras 3 filas
+            if (row.length === 5) { // Asegurarse de que haya 5 columnas
+                const newRow = movementsTable.insertRow();
+
+                // Insertamos todas las celdas: Fecha, Descripción, Tipo, Monto, Fecha de Corte
+                newRow.insertCell().textContent = row[0]; // Fecha
+                newRow.insertCell().textContent = row[1]; // Descripción
+                newRow.insertCell().textContent = row[2]; // Tipo
+                newRow.insertCell().textContent = row[3]; // Monto
+                newRow.insertCell().textContent = row[4]; // Fecha de Corte
+            }
+        });
+
+        uploadStatus.textContent = `El archivo "${file.name}" se procesó correctamente.`;
+        uploadStatus.style.color = 'green';
+    };
+
+    reader.onerror = function () {
+        uploadStatus.textContent = 'Hubo un error al leer el archivo.';
+        uploadStatus.style.color = 'red';
+    };
+
+    reader.readAsArrayBuffer(file);
+}
+    
+    function filterMovements() {
+    const filterType = document.getElementById('filterType').value; // Obtener el valor seleccionado
+    const rows = document.getElementById('movementsTable').querySelector('tbody').getElementsByTagName('tr');
+
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const typeCell = row.cells[2]; // Suponiendo que la columna de tipo está en la tercera columna (índice 2)
+
+        if (typeCell) {
+            const rowType = typeCell.innerText.trim(); // Obtener el tipo de la fila (Ingreso o Egreso)
+
+            if (filterType === 'Todos' || rowType === filterType) {
+                row.style.display = ''; // Mostrar la fila si coincide con el filtro
+            } else {
+                row.style.display = 'none'; // Ocultar la fila si no coincide con el filtro
+            }
+        }
+    }
+}
+
+   // Función para filtrar movimientos por fecha
+        function filterByDate(filterType) {
+            const filterDate = (filterType === 'movement') ? document.getElementById('dateFilter').value : document.getElementById('cutoffDateFilter').value;
+            const rows = movementsTable.getElementsByTagName('tr');
+
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const dateCell = row.cells[filterType === 'movement' ? 0 : 4]; // Filtra según la fecha de movimiento o de corte
+                
+                if (dateCell) {
+                    const rowDate = dateCell.innerText;
+                    if (filterDate && rowDate !== filterDate) {
+                        row.style.display = 'none'; // Ocultar la fila si la fecha no coincide
+                    } else {
+                        row.style.display = ''; // Mostrar la fila si la fecha coincide
+                    }
+                }
+            }
+        }
+
+    // Descargar en PDF
+    function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+
+        pdf.text("DPPI - Movimientos Financieros", 10, 10);
+
+        const rows = [];
+        const headers = ['Fecha', 'Descripción', 'Tipo', 'Monto', 'zFecha de Corte'];
+
+        rows.push(headers);
+
+        const movementsTable = document.getElementById('movementsTable').querySelector('tbody');
+        for (const row of movementsTable.rows) {
+            if (row.style.display !== 'none') {
+                const cells = Array.from(row.cells).map(cell => cell.innerText);
+                rows.push(cells);
+            }
+        }
+
+        pdf.autoTable({
+            head: [headers],
+            body: rows.slice(1),
+        });
+
+        pdf.save('movimientos_financieros.pdf');
+    }
+
+    // Descargar en Excel
+    function downloadExcel() {
+        const rows = [];
+        const headers = ['Fecha', 'Descripción', 'Tipo', 'Monto', 'Fecha de Corte'];
+
+        rows.push(headers);
+
+        const movementsTable = document.getElementById('movementsTable').querySelector('tbody');
+        for (const row of movementsTable.rows) {
+            if (row.style.display !== 'none') {
+                const cells = Array.from(row.cells).map(cell => cell.innerText.replace('$', ''));
+                rows.push(cells);
+            }
+        }
+
+        const worksheet = XLSX.utils.aoa_to_sheet(rows);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Movimientos');
+
+        XLSX.writeFile(workbook, 'movimientos_financieros.xlsx');
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

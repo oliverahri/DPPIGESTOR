@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DPPI - Dirección de Planificación y Presupuesto Institucional</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            background-color: #ffffff;
+            border-bottom: 2px solid #ffa500;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .navbar-brand:hover {
+            color: #ffa500;
+        }
+
+        .logo-space {
+            height: 50px;
+            width: 50px;
+        }
+
+        .dashboard {
+            margin-top: 40px;
+        }
+
+        .card {
+            border: none;
+            border-left: 5px solid #ffa500;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            background-color: rgba(255, 165, 0, 0.1);
+        }
+
+        .card-header {
+            background-color: #ffa500;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 1.2rem;
+        }
+
+        .card-body {
+            background-color: #ffffff;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .btn-orange {
+            background-color: #ffa500;
+            color: white;
+            font-weight: bold;
+            border-radius: 20px;
+            padding: 10px 20px;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn-orange:hover {
+            background-color: #e69500;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        footer {
+            background-color: #333;
+            color: #ffffff;
+            padding: 20px 0;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .carousel-container {
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .carousel-inner img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+        }
+
+        .carousel-caption {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        /* Estilo de la sección de contacto */
+        .contact-section {
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .social-icons img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .social-icons img:hover {
+            transform: scale(1.1);
+        }
+
+        .contact-info p {
+            font-size: 1rem;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="logo.png" alt="Logo" class="logo-space me-2">
+                DPPI
+            </a>
+        </div>
+    </nav>
+
+    <!-- Carrusel -->
+    <div id="carouselExample" class="carousel slide carousel-container" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="image1.jpg" class="d-block w-100" alt="Imagen 1">
+            </div>
+            <div class="carousel-item">
+                <img src="image2.jpg" class="d-block w-100" alt="Imagen 2">
+            </div>
+            <div class="carousel-item">
+                <img src="image3.jpg" class="d-block w-100" alt="Imagen 3">
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+
+    <!-- Título principal -->
+    <div class="container dashboard">
+        <h1 class="text-center mb-4">Dirección de Planificación y Presupuesto Institucional</h1>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card shadow card-hover">
+                    <div class="card-header">Software de Gestión</div>
+                    <div class="card-body">
+                        <p>Administre las operaciones de planificación y presupuesto desde este módulo.</p>
+                        <a href="software_gestion.html" class="btn btn-orange">Ir al Software</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow card-hover">
+                    <div class="card-header">Logros Alcanzados</div>
+                    <div class="card-body">
+                        <p>Consulte y analice los logros alcanzados por la institución.</p>
+                        <a href="logros.html" class="btn btn-orange">Ver Logros</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de Contacto y Redes Sociales -->
+    <div class="contact-section">
+        <h2>Información de Contacto</h2>
+        <div class="contact-info">
+            <p>Teléfono: +123 456 789</p>
+            <p>Email: contacto@dppi.org</p>
+        </div>
+        <h3>Síguenos en nuestras redes sociales:</h3>
+        <div class="social-icons">
+            <a href="https://www.facebook.com/dppiunellez.barinas/" target="_blank">
+                <img src="facebook-icon.png" alt="Facebook">
+            </a>
+            <a href="https://x.com/DppiUnellez" target="_blank">
+                <img src="twitter-icon.png" alt="Twitter">
+            </a>
+            <a href="https://www.instagram.com/dppiunellez/?hl=es" target="_blank">
+                <img src="instagram-icon.png" alt="Instagram">
+            </a>
+            <a href="https://www.youtube.com/channel/UC6E3dK3v2BkJoUULSyEh1fg/videos" target="_blank">
+                <img src="youtube-icon.png" alt="YouTube">
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-3 mt-4">
+        <p class="mb-0">&copy; 2024 DPPI. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/script.js"></script>
+</body>
+</html>

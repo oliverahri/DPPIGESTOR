@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logros Alcanzados</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            text-align: center;
+        }
+        .section-title {
+            color: #ffa500;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 24px;
+        }
+        #logroInput {
+            width: 30%;
+            padding: 5px;
+            font-size: 14px;
+            margin: 10px auto;
+            display: inline-block;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .add-logro {
+            background-color: #ffa500;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .logro-card {
+            width: 70%;
+            margin: 0 auto 15px auto;
+            padding: 10px;
+            border: 1px solid #ffa500;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .logro-title {
+            background-color: #ffa500; /* Cambié el color de negro a naranja */
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            font-family: 'Montserrat', sans-serif;
+            padding: 5px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .logro-title .remove-logro {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .paso {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .paso.completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .paso.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .paso.review {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .btn {
+            padding: 5px 10px;
+            margin-left: 5px;
+            font-size: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+        }
+        .btn-error {
+            background-color: #ff4c4c;
+        }
+        .btn-review {
+            background-color: #ffa500;
+        }
+        .btn-completed {
+            background-color: #4caf50;
+        }
+        .description {
+            font-size: 16px;
+            margin: 10px auto;
+            color: #555;
+            max-width: 80%;
+            line-height: 1.6;
+        }
+        .pdf-container {
+            display: none;
+        }
+        .back-to-home {
+            text-decoration: none;
+            font-size: 16px;
+            color: #ffa500;
+        }
+        .back-to-home:hover {
+            text-decoration: underline;
+        }
+        
+         .hide-in-pdf {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <a href="software_gestion.html" class="back-to-home">
+            &lt; Regresar a Software de Gestión
+        </a>
+    </div>
+    <h1 class="section-title">Logros Alcanzados</h1>
+    <p class="description">
+        En esta sección, puedes gestionar y documentar los logros alcanzados en tus proyectos. Cada logro puede incluir pasos que lo describan. Usa las opciones disponibles para agregar, marcar como completado, o gestionar cada paso de manera eficiente.
+    </p>
+    <div>
+        <input type="text" id="logroInput" placeholder="Ingrese un nuevo logro" />
+        <button class="add-logro" onclick="addLogro()">Añadir Logro</button>
+    </div>
+    <div id="logrosContainer"></div>
+    <button class="add-logro" onclick="downloadPDF()">Descargar Logros en PDF</button>
+
+    <!-- Contenedor Oculto para PDF -->
+    <div id="pdfContent" class="pdf-container"></div>
+
+    <script>
+        const logrosContainer = document.getElementById('logrosContainer');
+        const pdfContent = document.getElementById('pdfContent');
+        let logros = JSON.parse(localStorage.getItem('logros')) || [];
+
+        function saveLogros() {
+            localStorage.setItem('logros', JSON.stringify(logros));
+        }
+
+        function renderLogros() {
+            logrosContainer.innerHTML = '';
+            pdfContent.innerHTML = '';
+
+            logros.forEach((logro, index) => {
+                // Render en la página
+                const logroDiv = document.createElement('div');
+                logroDiv.className = 'logro-card';
+                logroDiv.innerHTML = `
+                    <div class="logro-title">
+                        ${logro.titulo}
+                        <button class="remove-logro" onclick="removeLogro(${index})">X</button>
+                    </div>
+                    <input type="text" id="pasoInput-${index}" placeholder="Añadir un paso" />
+                    <button onclick="addPaso(${index})" class="add-logro">Añadir Paso</button>
+                    <div class="pasos" id="pasos-${index}">
+                        ${logro.pasos.map((paso, pasoIndex) => `
+                            <div class="paso ${paso.estado}">
+                                <span>${paso.texto}</span>
+                                <div>
+                                    <button class="btn btn-error" onclick="setError(${index}, ${pasoIndex})">X</button>
+                                    <button class="btn btn-review" onclick="setReview(${index}, ${pasoIndex})">?</button>
+                                    <button class="btn btn-completed" onclick="setCompleted(${index}, ${pasoIndex})">✓</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                logrosContainer.appendChild(logroDiv);
+
+                // Render para el PDF
+                const pdfDiv = document.createElement('div');
+                pdfDiv.innerHTML = `
+                    <strong>${logro.titulo}</strong>
+                    <ul>
+                        ${logro.pasos.map(paso => `<li>${paso.texto}</li>`).join('')}
+                    </ul>
+                `;
+                pdfContent.appendChild(pdfDiv);
+            });
+        }
+
+        function addLogro() {
+            const logroInput = document.getElementById('logroInput');
+            const titulo = logroInput.value.trim();
+            if (titulo) {
+                logros.push({ titulo, pasos: [] });
+                saveLogros();
+                renderLogros();
+                logroInput.value = '';
+            }
+        }
+
+        function addPaso(logroIndex) {
+            const pasoInput = document.getElementById(`pasoInput-${logroIndex}`);
+            const texto = pasoInput.value.trim();
+            if (texto) {
+                logros[logroIndex].pasos.push({ texto, estado: '' });
+                saveLogros();
+                renderLogros();
+            }
+        }
+
+        function setError(logroIndex, pasoIndex) {
+            logros[logroIndex].pasos[pasoIndex].estado = 'error';
+            saveLogros();
+            renderLogros();
+        }
+
+        function setReview(logroIndex, pasoIndex) {
+            logros[logroIndex].pasos[pasoIndex].estado = 'review';
+            saveLogros();
+            renderLogros();
+        }
+
+        function setCompleted(logroIndex, pasoIndex) {
+            logros[logroIndex].pasos[pasoIndex].estado = 'completed';
+            saveLogros();
+            renderLogros();
+        }
+
+        function removeLogro(index) {
+            logros.splice(index, 1);
+            saveLogros();
+            renderLogros();
+        }
+
+        function downloadPDF() {
+            // Crear una copia del contenedor sin los inputs y botones interactivos
+            const logrosContainerCopy = document.createElement('div');
+            
+            // Añadir el título del PDF
+            const titleDiv = document.createElement('div');
+            titleDiv.style.textAlign = 'center';
+            titleDiv.style.fontSize = '24px';
+            titleDiv.style.fontWeight = 'bold';
+            titleDiv.innerHTML = 'DPPI - LOGROS ALCANZADOS';
+            logrosContainerCopy.appendChild(titleDiv);
+
+            // Añadir los logros
+            logros.forEach(logro => {
+                const logroDiv = document.createElement('div');
+                logroDiv.className = 'logro-card';
+                logroDiv.innerHTML = `
+                    <div class="logro-title">
+                        ${logro.titulo}
+                    </div>
+                    <div class="pasos">
+                        ${logro.pasos.map(paso => `
+                            <div class="paso ${paso.estado}">
+                                <span>${paso.texto}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                logrosContainerCopy.appendChild(logroDiv);
+            });
+
+            // Usar html2pdf para convertir la copia del contenedor en PDF
+            const opt = {
+                margin:       0.5,
+                filename:     'logros.pdf',
+                image:        { type: 'jpeg', quality: 1 },
+                html2canvas:  { scale: 4 },  // Aumentar la escala para mejorar la calidad
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().from(logrosContainerCopy).set(opt).save();
+        }
+
+        renderLogros();
+    </script>
+</body>
+</html>
